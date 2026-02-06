@@ -110,7 +110,7 @@ export function AdminPaymentVerification({
 
   return (
     <div className="space-y-6">
-      {/* Summary */}
+      {/* Summary of payment*/}
       <div className="grid grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">
