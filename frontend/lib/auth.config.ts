@@ -70,7 +70,7 @@ export const authOptions: NextAuthOptions = {
 
                     if (res.ok) {
                         const data = await res.json();
-                        token.accessToken = data.access_token;
+                        token.accessToken = data.accessToken || data.access_token;
                         token.userId = data.userId || token.sub;
                     }
                 } catch (error) {

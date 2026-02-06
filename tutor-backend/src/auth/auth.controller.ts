@@ -19,4 +19,9 @@ export class AuthController {
   oauth(@Body() body: { email: string; name: string; provider: string }) {
     return this.auth.oauthLogin(body.email, body.name, body.provider);
   }
+
+  @Post('refresh')
+  refresh(@Body('refreshToken') refreshToken: string) {
+    return this.auth.refreshToken(refreshToken);
+  }
 }

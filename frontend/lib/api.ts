@@ -15,8 +15,8 @@ const api = axios.create({
 
 // Interceptor to add the JWT token from NextAuth session
 api.interceptors.request.use(async (config) => {
-    // Try localStorage first (for backward compatibility)
-    let token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    // Try localStorage first
+    let token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 
     // If no localStorage token, get from NextAuth session
     if (!token && typeof window !== 'undefined') {
@@ -42,20 +42,30 @@ api.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
-                const refreshToken = localStorage.getItem('token');
+                const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
+                if (!refreshToken) throw new Error('No refresh token');
+
                 const { data } = await axios.post(
                     `${API_URL}/auth/refresh`,
                     { refreshToken },
                     { withCredentials: true }
                 );
 
-                localStorage.setItem('accessToken', data.accessToken);
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('accessToken', data.accessToken);
+                    localStorage.setItem('refreshToken', data.refreshToken);
+                }
+
                 originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
 
                 return api(originalRequest);
             } catch (refreshError) {
-                // Redirect to login
-                window.location.href = '/login';
+                // Redirect to login if refresh fails
+                if (typeof window !== 'undefined') {
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    window.location.href = '/login';
+                }
                 return Promise.reject(refreshError);
             }
         }

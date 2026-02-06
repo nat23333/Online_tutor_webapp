@@ -16,3 +16,5 @@ services:
         generateValue: true
       - key: FRONTEND_URL
         value: https://onlinetutorwebapp.vercel.app
+      - key: PORT
+        value: 10000

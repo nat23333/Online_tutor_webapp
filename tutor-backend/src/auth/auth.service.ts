@@ -41,12 +41,12 @@ export class AuthService {
 
     if (!user) {
       // Create a new user for OAuth - use a random password hash since they won't use it
-      const randomHash = await hashPassword(Math.random().toString(36));
+      const passwordHash = await hashPassword(Math.random().toString(36));
       user = await this.prisma.user.create({
         data: {
           fullName: name || email.split('@')[0],
           email,
-          passwordHash: randomHash,
+          passwordHash,
           role: 'STUDENT',
         },
       });
@@ -55,12 +55,33 @@ export class AuthService {
     return this.generateToken(user);
   }
 
+  async refreshToken(token: string) {
+    try {
+      const payload = this.jwt.verify(token);
+      const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+      return this.generateToken(user);
+    } catch (e) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
   generateToken(user: any) {
+    const payload = {
+      sub: user.id,
+      role: user.role,
+    };
     return {
-      access_token: this.jwt.sign({
-        sub: user.id,
+      accessToken: this.jwt.sign(payload, { expiresIn: '1h' }),
+      refreshToken: this.jwt.sign(payload, { expiresIn: '7d' }),
+      user: {
+        id: user.id,
+        email: user.email,
         role: user.role,
-      }),
+        fullName: user.fullName,
+      }
     };
   }
 }
