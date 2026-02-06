@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: Online_tutor_webapp
+    env: node
+    rootDir: tutor-backend
+    buildCommand: npm ci && npx prisma generate && npm run build
+    startCommand: node dist/src/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://onlinetutorwebapp.vercel.app

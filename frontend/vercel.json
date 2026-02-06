@@ -11,5 +11,16 @@
             "src": "/(.*)",
             "dest": "$1"
         }
-    ]
+    ],
+    "buildCommand": "npm run build",
+    "outputDirectory": ".next",
+    "installCommand": "npm install",
+    "functions": {
+        "pages/api/**/*.js": {
+            "maxDuration": 10
+        }
+    },
+    "env": {
+        "NEXT_PUBLIC_API_URL": "https://online-tutor-webapp.onrender.com"
+    }
 }
