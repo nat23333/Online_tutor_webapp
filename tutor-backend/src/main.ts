@@ -13,6 +13,9 @@ async function bootstrap() {
   app.use(helmet());
   app.use(cookieParser());
 
+  // Global prefix
+  app.setGlobalPrefix('api');
+
   // CORS Configuration
   app.enableCors({
     origin: [
