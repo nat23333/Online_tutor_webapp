@@ -18,6 +18,6 @@ async function bootstrap() {
   await app.listen(port);
   console.log(`Backend running on port ${port}`);
 }
-// bootstrap();
+bootstrap();
 // Export for Vercel serverless
-export default bootstrap().then(app => app.getHttpAdapter().getInstance());
+//export default bootstrap().then(app => app.getHttpAdapter().getInstance());
