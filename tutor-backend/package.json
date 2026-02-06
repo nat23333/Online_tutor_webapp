@@ -1,0 +1,38 @@
+{
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/main",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\""
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.13",
+    "@nestjs/core": "^11.1.13",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/platform-express": "^11.1.13",
+    "@nestjs/schedule": "^6.1.1",
+    "@prisma/client": "6.4.1",
+    "axios": "^1.13.4",
+    "bcrypt": "^6.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
+    "dotenv": "^17.2.3",
+    "ioredis": "^5.9.2",
+    "ioredis-mock": "^8.13.1",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "telegraf": "^4.16.3"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.16",
+    "@prisma/config": "^7.3.0",
+    "@types/bcrypt": "^6.0.0",
+    "@types/multer": "^2.0.0",
+    "@types/passport-jwt": "^4.0.1",
+    "prisma": "6.4.1"
+  }
+}
