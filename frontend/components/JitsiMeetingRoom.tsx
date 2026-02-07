@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, LogOut, Maximize2 } from 'lucide-react';
+import Script from 'next/script';
 
 interface JitsiMeetingRoomProps {
   roomName: string;
@@ -31,109 +32,108 @@ export function JitsiMeetingRoom({
   const containerRef = useRef<HTMLDivElement>(null);
   const jitsiApiRef = useRef<any>(null);
 
+
+
+  // ... (inside component)
   useEffect(() => {
-    // Load Jitsi script
-    const script = document.createElement('script');
-    script.src = 'https://meet.jitsi.org/external_api.js';
-    script.async = true;
-
-    script.onload = () => {
-      if (containerRef.current && window.JitsiMeetExternalAPI) {
-        const options = {
-          roomName: roomName,
-          width: '100%',
-          height: '100%',
-          parentNode: containerRef.current,
-          configOverwrite: {
-            startWithAudioMuted: false,
-            startWithVideoMuted: false,
-            disableSimulcast: false,
-          },
-          interfaceConfigOverwrite: {
-            DEFAULT_BACKGROUND: '#040404',
-            SHOW_JITSI_WATERMARK: false,
-            SHOW_WATERMARK_FOR_GUESTS: false,
-            TOOLBAR_BUTTONS: [
-              'microphone',
-              'camera',
-              'closedcaptions',
-              'desktop',
-              'fullscreen',
-              'chat',
-              'fodeviceselection',
-              'hangup',
-              'profile',
-              'settings',
-              'raisehand',
-              'videoquality',
-              'filmstrip',
-              'feedback',
-              'stats',
-              'shortcuts',
-              'tileview',
-              'select-background',
-              'download',
-            ],
-            SETTINGS_SECTIONS: [
-              'devices',
-              'language',
-              'moderator',
-              'profile',
-              'calendar',
-              'sounds',
-              'more',
-            ],
-          },
-          userInfo: {
-            displayName: userName,
-            email: userEmail,
-          },
-        };
-
-        try {
-          jitsiApiRef.current = new window.JitsiMeetExternalAPI(
-            'meet.jitsi.org',
-            options
-          );
-
-          // Event listeners
-          jitsiApiRef.current.addEventListener('videoConferenceLeft', () => {
-            console.log('User left the conference');
-            onLeave?.();
-          });
-
-          jitsiApiRef.current.addEventListener('participantJoined', (event: any) => {
-            console.log('Participant joined:', event.detail);
-          });
-
-          jitsiApiRef.current.addEventListener('participantLeft', (event: any) => {
-            console.log('Participant left:', event.detail);
-          });
-
-          jitsiApiRef.current.addEventListener('readyToClose', () => {
-            console.log('Jitsi is ready to close');
-          });
-        } catch (error) {
-          console.error('Error initializing Jitsi:', error);
-        }
-      }
-    };
-
-    script.onerror = () => {
-      console.error('Failed to load Jitsi Meet script');
-    };
-
-    document.body.appendChild(script);
-
+    // Cleanup on unmount
     return () => {
       if (jitsiApiRef.current) {
         jitsiApiRef.current.dispose();
       }
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
     };
-  }, [roomName, userName, userEmail, onLeave]);
+  }, []);
+
+  const initJitsi = () => {
+    if (containerRef.current && window.JitsiMeetExternalAPI) {
+      if (jitsiApiRef.current) jitsiApiRef.current.dispose();
+
+      const options = {
+        roomName: roomName,
+        width: '100%',
+        height: '100%',
+        parentNode: containerRef.current,
+        configOverwrite: {
+          startWithAudioMuted: false,
+          startWithVideoMuted: false,
+          disableSimulcast: false,
+        },
+        interfaceConfigOverwrite: {
+          DEFAULT_BACKGROUND: '#040404',
+          SHOW_JITSI_WATERMARK: false,
+          SHOW_WATERMARK_FOR_GUESTS: false,
+          TOOLBAR_BUTTONS: [
+            'microphone',
+            'camera',
+            'closedcaptions',
+            'desktop',
+            'fullscreen',
+            'chat',
+            'fodeviceselection',
+            'hangup',
+            'profile',
+            'settings',
+            'raisehand',
+            'videoquality',
+            'filmstrip',
+            'feedback',
+            'stats',
+            'shortcuts',
+            'tileview',
+            'select-background',
+            'download',
+          ],
+          SETTINGS_SECTIONS: [
+            'devices',
+            'language',
+            'moderator',
+            'profile',
+            'calendar',
+            'sounds',
+            'more',
+          ],
+        },
+        userInfo: {
+          displayName: userName,
+          email: userEmail,
+        },
+      };
+
+      try {
+        jitsiApiRef.current = new window.JitsiMeetExternalAPI(
+          'meet.jitsi.org',
+          options
+        );
+
+        // Event listeners
+        jitsiApiRef.current.addEventListener('videoConferenceLeft', () => {
+          console.log('User left the conference');
+          onLeave?.();
+        });
+
+        jitsiApiRef.current.addEventListener('participantJoined', (event: any) => {
+          console.log('Participant joined:', event.detail);
+        });
+
+        jitsiApiRef.current.addEventListener('participantLeft', (event: any) => {
+          console.log('Participant left:', event.detail);
+        });
+
+        jitsiApiRef.current.addEventListener('readyToClose', () => {
+          console.log('Jitsi is ready to close');
+        });
+      } catch (error) {
+        console.error('Error initializing Jitsi:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    // Re-initialize if props change and script is already loaded
+    if (window.JitsiMeetExternalAPI) {
+      initJitsi();
+    }
+  }, [roomName, userName, userEmail]);
 
   const handleLeave = () => {
     if (jitsiApiRef.current) {
@@ -154,6 +154,11 @@ export function JitsiMeetingRoom({
 
   return (
     <div className="space-y-4">
+      <Script
+        src="https://meet.jitsi.org/external_api.js"
+        onLoad={initJitsi}
+        onError={(e) => console.error("Script failed to load", e)}
+      />
       <div
         ref={containerRef}
         className="w-full rounded-lg overflow-hidden bg-black"
