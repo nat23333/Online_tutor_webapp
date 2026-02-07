@@ -12,7 +12,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import api from '@/lib/api';
 
 interface Tutor {
-  id: number;
+  id: string;
   name: string;
   photo: string;
   specialization: string;
@@ -28,7 +28,7 @@ interface Tutor {
 }
 
 interface BrowseTutorsProps {
-  onSelectTutor?: (tutorId: number) => void;
+  onSelectTutor?: (tutorId: string) => void;
   tutors?: Tutor[];
   photoUrl?: string;
   initialQuery?: string;
@@ -140,7 +140,7 @@ export function BrowseTutors({
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <Avatar className="h-16 w-16 border-2 border-border">
-                          <AvatarImage src={photoUrl} className="object-cover" />
+                          <AvatarImage src={tutor.photo} className="object-cover" />
                         </Avatar>
                         <CardTitle className="text-lg">{tutor.name}</CardTitle>
                         {tutor.isVerified && (

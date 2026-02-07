@@ -19,7 +19,7 @@ interface Message {
 
 interface ChatInterfaceProps {
     tutorName: string;
-    tutorId: number;
+    tutorId: string;
     studentName?: string;
     isTutor?: boolean;
     onClose?: () => void;

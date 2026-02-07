@@ -12,7 +12,7 @@ function BrowsePageContent() {
     const searchParams = useSearchParams();
     const initialQuery = searchParams.get('query') || '';
 
-    const handleSelectTutor = (tutorId: number) => {
+    const handleSelectTutor = (tutorId: string) => {
         router.push(`/booking?tutorId=${tutorId}`);
     };
 

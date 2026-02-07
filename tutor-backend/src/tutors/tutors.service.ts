@@ -25,6 +25,11 @@ export class TutorsService {
             },
         });
 
+        console.log(`FindAll Tutors: Found ${tutors.length} tutors for query "${query || ''}"`);
+        if (tutors.length > 0) {
+            console.log(`First tutor role: ${tutors[0].role}, Profile: ${!!tutors[0].tutorProfile}`);
+        }
+
         // For now, return all tutors regardless of verification for easier testing
         // In production, we would filter by isVerified: true
         return tutors.map(this.mapToDto);
@@ -95,9 +100,9 @@ export class TutorsService {
     private mapToDto(user: any) {
         const profile = user.tutorProfile || {};
         return {
-            id: user.id, // Keeping string UUID
+            id: String(user.id), // Ensure string
             name: user.fullName,
-            photo: 'https://github.com/shadcn.png', // Placeholder or add photoUrl to schema
+            photo: 'https://github.com/shadcn.png', // Default placeholder
             specialization: profile.subjects?.[0] || 'General',
             hourlyRate: profile.hourlyRate || 0,
             rating: 4.5, // Placeholder - add ratings table later
