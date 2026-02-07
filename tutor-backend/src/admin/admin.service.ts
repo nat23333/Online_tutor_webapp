@@ -21,6 +21,21 @@ export class AdminService {
         });
     }
 
+    async getPendingPayments() {
+        return this.prisma.payment.findMany({
+            where: { status: 'PENDING' },
+            include: {
+                booking: {
+                    include: {
+                        student: { select: { fullName: true } },
+                        tutor: { select: { fullName: true } }
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+    }
+
     async verifyTutor(profileId: string, status: boolean) {
         const profile = await this.prisma.tutorProfile.findUnique({
             where: { id: profileId },

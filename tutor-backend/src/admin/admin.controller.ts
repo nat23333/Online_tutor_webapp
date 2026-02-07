@@ -26,6 +26,17 @@ export class AdminController {
         return this.adminService.getStats();
     }
 
+    @Get('payments')
+    async getPayments() {
+        // Assume this method exists in AdminService
+        return this.adminService.getPendingPayments();
+    }
+
+    @Patch('payments/:id/verify')
+    async verifyPayment(@Param('id') id: string, @Body('status') status: boolean) {
+        return this.adminService.verifyPayment(id, status);
+    }
+
     @Public()
     @Post('telegram/webhook')
     async telegramWebhook(@Body() update: any) {
