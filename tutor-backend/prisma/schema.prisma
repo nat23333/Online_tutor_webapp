@@ -63,6 +63,9 @@ model TutorProfile {
   id         String   @id @default(uuid())
   userId     String   @unique
   bio        String?
+  headline   String?
+  photoUrl   String?
+  location   String?
   subjects   String[] @default([])
   hourlyRate Int?
   isVerified Boolean  @default(false)

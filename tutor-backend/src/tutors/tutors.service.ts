@@ -25,10 +25,8 @@ export class TutorsService {
             },
         });
 
-        console.log(`FindAll Tutors: Found ${tutors.length} tutors for query "${query || ''}"`);
-        if (tutors.length > 0) {
-            console.log(`First tutor role: ${tutors[0].role}, Profile: ${!!tutors[0].tutorProfile}`);
-        }
+        console.log(`[TutorsService] FindAll: Found ${tutors.length} users with role TUTOR. Query: "${query || ''}"`);
+        tutors.forEach(t => console.log(` - Tutor: ${t.fullName} (ID: ${t.id}), Headline: ${t.tutorProfile?.headline}, Photo: ${!!t.tutorProfile?.photoUrl}`));
 
         // For now, return all tutors regardless of verification for easier testing
         // In production, we would filter by isVerified: true
@@ -51,22 +49,33 @@ export class TutorsService {
     }
 
     async upsertProfile(userId: string, data: any) {
-        // First ensure user is a TUTOR
+        // First ensure user is a TUTOR and update their fullName if provided
         await this.prisma.user.update({
             where: { id: userId },
-            data: { role: 'TUTOR' }
+            data: {
+                role: 'TUTOR',
+                fullName: data.firstName && data.lastName ? `${data.firstName} ${data.lastName}` : undefined
+            }
         });
+
+        console.log(`[TutorsService] Upserting profile for user ${userId}. Headline: ${data.headline}`);
 
         return this.prisma.tutorProfile.upsert({
             where: { userId },
             update: {
                 bio: data.bio,
+                headline: data.headline,
+                photoUrl: data.photoUrl,
+                location: data.location,
                 hourlyRate: data.hourlyRate,
                 subjects: data.skills || [],
             },
             create: {
                 userId,
                 bio: data.bio,
+                headline: data.headline,
+                photoUrl: data.photoUrl,
+                location: data.location,
                 hourlyRate: data.hourlyRate,
                 subjects: data.skills || [],
                 isVerified: false, // Default to false, admin must verify
@@ -102,13 +111,13 @@ export class TutorsService {
         return {
             id: String(user.id), // Ensure string
             name: user.fullName,
-            photo: 'https://github.com/shadcn.png', // Default placeholder
-            specialization: profile.subjects?.[0] || 'General',
+            photo: profile.photoUrl || 'https://github.com/shadcn.png',
+            specialization: profile.headline || profile.subjects?.[0] || 'General Tutor',
             hourlyRate: profile.hourlyRate || 0,
-            rating: 4.5, // Placeholder - add ratings table later
-            reviewCount: 10, // Placeholder
+            rating: 4.8, // Placeholder
+            reviewCount: 12, // Placeholder
             yearsExperience: 5, // Placeholder
-            location: 'Addis Ababa', // Placeholder
+            location: profile.location || 'Addis Ababa',
             bio: profile.bio || 'No bio available',
             qualifications: profile.subjects || [],
             isVerified: profile.isVerified || false,
