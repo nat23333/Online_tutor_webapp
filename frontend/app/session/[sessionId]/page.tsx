@@ -2,9 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { JitsiMeetingRoom } from '@/components/JitsiMeetingRoom';
+import dynamic from 'next/dynamic';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
+
+const JitsiMeetingRoom = dynamic(
+    () => import('@/components/JitsiMeetingRoom').then((mod) => mod.JitsiMeetingRoom),
+    { ssr: false }
+);
 import { Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
