@@ -25,6 +25,8 @@ export class TutorsService {
             },
         });
 
+        // For now, return all tutors regardless of verification for easier testing
+        // In production, we would filter by isVerified: true
         return tutors.map(this.mapToDto);
     }
 
@@ -41,6 +43,30 @@ export class TutorsService {
         }
 
         return this.mapToDto(tutor);
+    }
+
+    async upsertProfile(userId: string, data: any) {
+        // First ensure user is a TUTOR
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: { role: 'TUTOR' }
+        });
+
+        return this.prisma.tutorProfile.upsert({
+            where: { userId },
+            update: {
+                bio: data.bio,
+                hourlyRate: data.hourlyRate,
+                subjects: data.skills || [],
+            },
+            create: {
+                userId,
+                bio: data.bio,
+                hourlyRate: data.hourlyRate,
+                subjects: data.skills || [],
+                isVerified: false, // Default to false, admin must verify
+            },
+        });
     }
 
     private mapToDto(user: any) {

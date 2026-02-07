@@ -1,5 +1,6 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Patch, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -18,6 +19,12 @@ export class AuthController {
   @Post('oauth')
   oauth(@Body() body: { email: string; name: string; provider: string }) {
     return this.auth.oauthLogin(body.email, body.name, body.provider);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('role')
+  updateRole(@Req() req, @Body('role') role: string) {
+    return this.auth.updateRole(req.user.sub, role);
   }
 
   @Post('refresh')

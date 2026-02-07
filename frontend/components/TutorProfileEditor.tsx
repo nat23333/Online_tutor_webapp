@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Upload, Plus, X, GraduationCap, DollarSign, Image as ImageIcon, FileText, Paperclip, Trash2 } from 'lucide-react';
+import api from '@/lib/api';
+import { toast } from 'sonner';
 
 interface Qualification {
     id: string;
@@ -67,11 +69,23 @@ export function TutorProfileEditor() {
 
     const handleSave = async () => {
         setIsSaving(true);
-        // Simulate API call and save to local storage
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        localStorage.setItem('tutorProfile', JSON.stringify(profile));
-        setIsSaving(false);
-        router.push('/dashboard');
+        try {
+            // Save to backend
+            await api.post('/tutors/profile', profile);
+
+            // Also save to local storage for quick access
+            localStorage.setItem('tutorProfile', JSON.stringify(profile));
+
+            toast.success('Profile saved successfully');
+            router.push('/dashboard');
+        } catch (error) {
+            console.error('Failed to save profile', error);
+            toast.error('Failed to save profile to server');
+            // Still save to local storage as fallback
+            localStorage.setItem('tutorProfile', JSON.stringify(profile));
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handlePhotoClick = () => {

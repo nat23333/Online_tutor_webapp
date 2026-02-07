@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
+import api from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, GraduationCap, BookOpen } from "lucide-react";
 
@@ -24,17 +25,25 @@ export default function OnboardingPage() {
         if (!selectedRole) return;
 
         setIsSubmitting(true);
-        // In a real app, we would save this to the database here.
-        // For now, we'll save to localStorage to persist the choice across sessions loosely
-        // and relying on the AuthProvider to read it if we were still using the old one.
-        // Since we are using NextAuth, we ideally want to store this in the session/database.
-        // For this demo mock step:
-        localStorage.setItem('userRole', selectedRole);
+        try {
+            // Persist role to backend
+            await api.patch('/auth/role', { role: selectedRole });
 
-        // Simulating API call
-        await new Promise(resolve => setTimeout(resolve, 800));
+            // Still save to localStorage for immediate UI feedback if needed
+            localStorage.setItem('userRole', selectedRole);
 
-        router.push('/dashboard');
+            // Simulating a small delay for smooth transition
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            router.push('/dashboard');
+        } catch (error) {
+            console.error('Failed to save role', error);
+            // Fallback to local storage if API fails, but log error
+            localStorage.setItem('userRole', selectedRole);
+            router.push('/dashboard');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (status === 'loading') {

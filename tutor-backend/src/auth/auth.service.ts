@@ -42,6 +42,7 @@ export class AuthService {
     if (!user) {
       // Create a new user for OAuth - use a random password hash since they won't use it
       const passwordHash = await hashPassword(Math.random().toString(36));
+      console.log(`Creating new OAuth user: ${email} (${name}) with provider ${provider}`);
       user = await this.prisma.user.create({
         data: {
           fullName: name || email.split('@')[0],
@@ -50,9 +51,24 @@ export class AuthService {
           role: 'STUDENT',
         },
       });
+      console.log(`User created successfully with ID: ${user.id}`);
     }
 
     return this.generateToken(user);
+  }
+
+  async updateRole(userId: string, role: string) {
+    const validRoles = ['STUDENT', 'TUTOR', 'ADMIN'];
+    const formattedRole = role.toUpperCase();
+
+    if (!validRoles.includes(formattedRole)) {
+      throw new Error('Invalid role');
+    }
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { role: formattedRole as any },
+    });
   }
 
   async refreshToken(token: string) {

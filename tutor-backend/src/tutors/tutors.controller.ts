@@ -1,5 +1,6 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, Post, Body, Req, UseGuards } from '@nestjs/common';
 import { TutorsService } from './tutors.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('tutors')
 export class TutorsController {
@@ -13,5 +14,11 @@ export class TutorsController {
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.tutorsService.findOne(id);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('profile')
+    upsertProfile(@Req() req, @Body() body: any) {
+        return this.tutorsService.upsertProfile(req.user.sub, body);
     }
 }
