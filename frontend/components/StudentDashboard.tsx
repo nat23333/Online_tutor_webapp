@@ -14,7 +14,7 @@ interface Session {
   date: string;
   time: string;
   duration: number;
-  status: 'upcoming' | 'completed' | 'cancelled';
+  status: 'upcoming' | 'completed' | 'cancelled' | 'confirmed' | 'pending' | 'expired';
   meetingLink?: string;
   rating?: number;
 }

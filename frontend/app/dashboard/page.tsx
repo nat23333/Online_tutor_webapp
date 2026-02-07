@@ -44,6 +44,17 @@ export default function DashboardPage() {
     }
   };
 
+  const [stats, setStats] = useState<any>(null);
+
+  const fetchStats = async () => {
+    try {
+      const { data } = await api.get('/tutors/stats');
+      setStats(data);
+    } catch (err) {
+      console.error('Failed to fetch tutor stats', err);
+    }
+  };
+
   useEffect(() => {
     if (isLoading) return;
 
@@ -58,6 +69,7 @@ export default function DashboardPage() {
     }
 
     if (userRole === 'tutor') {
+      fetchStats();
       const saved = localStorage.getItem('tutorProfile');
       if (saved) {
         try {
@@ -74,6 +86,7 @@ export default function DashboardPage() {
       const interval = setInterval(() => {
         fetchNotifications();
         fetchBookings();
+        if (userRole === 'tutor') fetchStats();
       }, 10000);
       return () => clearInterval(interval);
     }
@@ -102,12 +115,14 @@ export default function DashboardPage() {
   const sessions = bookings.map(b => ({
     id: b.id,
     tutor: b.tutor?.fullName || 'Tutor',
+    student: b.student?.fullName || 'Student',
     subject: 'Tutoring Session',
     date: b.startTime?.split('T')[0] || '',
     time: b.startTime?.split('T')[1]?.substring(0, 5) || '',
     duration: b.durationMins || 60,
     status: b.status.toLowerCase() as any,
     meetingLink: b.meetingLink,
+    amount: b.amount || 0,
   }));
 
   return (
@@ -204,6 +219,8 @@ export default function DashboardPage() {
               photoUrl={tutorProfile?.photoUrl || displayImage}
               specialization={tutorProfile?.headline || "Mathematics"}
               hourlyRate={500}
+              stats={stats}
+              sessions={sessions}
               onEditProfile={() => router.push('/tutor/profile/edit')}
               onUpdateAvailability={() => console.log('Opening availability editor...')}
             />

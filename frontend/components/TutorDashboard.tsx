@@ -15,7 +15,7 @@ interface TutorSession {
   date: string;
   time: string;
   duration: number;
-  status: 'upcoming' | 'completed' | 'cancelled';
+  status: 'upcoming' | 'completed' | 'cancelled' | 'confirmed' | 'pending' | 'expired';
   meetingLink?: string;
   studentRating?: number;
   amount: number;
@@ -26,6 +26,7 @@ interface TutorStats {
   totalEarnings: number;
   averageRating: number;
   responseRate: number;
+  uniqueStudents: number;
 }
 
 interface TutorDashboardProps {
@@ -39,63 +40,28 @@ interface TutorDashboardProps {
   onUpdateAvailability?: () => void;
 }
 
-const MOCK_SESSIONS: TutorSession[] = [
-  {
-    id: 1,
-    student: 'Kidane Tekle',
-    subject: 'Mathematics - Calculus',
-    date: '2026-02-15',
-    time: '14:00',
-    duration: 60,
-    status: 'upcoming',
-    meetingLink: 'https://meet.jitsi.org/tutor-session-001',
-    amount: 500,
-  },
-  {
-    id: 2,
-    student: 'Almaz Belay',
-    subject: 'Mathematics - Algebra',
-    date: '2026-02-14',
-    time: '10:00',
-    duration: 90,
-    status: 'completed',
-    studentRating: 5,
-    amount: 750,
-  },
-  {
-    id: 3,
-    student: 'Yohannes Tadesse',
-    subject: 'Mathematics - Geometry',
-    date: '2026-02-12',
-    time: '16:00',
-    duration: 60,
-    status: 'completed',
-    studentRating: 4,
-    amount: 500,
-  },
-];
-
-const MOCK_STATS: TutorStats = {
-  completedSessions: 24,
-  totalEarnings: 12000,
-  averageRating: 4.8,
-  responseRate: 98,
-};
-
 export function TutorDashboard({
   tutorName = 'Dr. Abebe',
   photoUrl,
   specialization = 'Mathematics',
   hourlyRate = 500,
-  stats = MOCK_STATS,
-  sessions = MOCK_SESSIONS,
+  stats,
+  sessions = [],
   onEditProfile,
   onUpdateAvailability,
 }: TutorDashboardProps) {
-  const [upcomingSessions] = useState(sessions.filter(s => s.status === 'upcoming'));
-  const [pastSessions] = useState(sessions.filter(s => s.status !== 'upcoming'));
+  const currentStats = stats || {
+    completedSessions: 0,
+    totalEarnings: 0,
+    averageRating: 0,
+    responseRate: 0,
+    uniqueStudents: 0,
+  };
 
-  const monthlyEarnings = Math.floor(stats.totalEarnings * 0.4);
+  const upcomingSessions = sessions.filter(s => s.status === 'upcoming' || s.status === 'confirmed');
+  const pastSessions = sessions.filter(s => s.status !== 'upcoming' && s.status !== 'confirmed');
+
+  const monthlyEarnings = Math.floor(currentStats.totalEarnings * 0.4);
 
   return (
     <div className="space-y-8">
@@ -135,7 +101,7 @@ export function TutorDashboard({
           </CardHeader>
           <CardContent>
             <div className="flex items-baseline gap-2">
-              <div className="text-3xl font-bold text-foreground">{stats.completedSessions}</div>
+              <div className="text-3xl font-bold text-foreground">{currentStats.completedSessions}</div>
               <span className="text-xs text-muted-foreground">total</span>
             </div>
           </CardContent>
@@ -147,7 +113,7 @@ export function TutorDashboard({
           </CardHeader>
           <CardContent>
             <div className="flex items-baseline gap-2">
-              <div className="text-3xl font-bold text-foreground">{stats.totalEarnings.toLocaleString()}</div>
+              <div className="text-3xl font-bold text-foreground">{currentStats.totalEarnings.toLocaleString()}</div>
               <span className="text-xs text-muted-foreground">ETB</span>
             </div>
             <p className="text-xs text-muted-foreground mt-2">~{monthlyEarnings.toLocaleString()} ETB/month</p>
@@ -160,7 +126,7 @@ export function TutorDashboard({
           </CardHeader>
           <CardContent>
             <div className="flex items-baseline gap-2">
-              <div className="text-3xl font-bold text-foreground">{stats.averageRating}</div>
+              <div className="text-3xl font-bold text-foreground">{currentStats.averageRating}</div>
               <Star className="h-5 w-5 fill-accent text-accent" />
             </div>
             <p className="text-xs text-muted-foreground mt-2">Out of 5.0</p>
@@ -173,7 +139,7 @@ export function TutorDashboard({
           </CardHeader>
           <CardContent>
             <div className="flex items-baseline gap-2">
-              <div className="text-3xl font-bold text-foreground">{stats.responseRate}%</div>
+              <div className="text-3xl font-bold text-foreground">{currentStats.responseRate}%</div>
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
             <p className="text-xs text-muted-foreground mt-2">Student inquiries</p>
@@ -207,13 +173,13 @@ export function TutorDashboard({
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Students Taught
               </p>
-              <p className="text-lg font-bold text-foreground mt-2">12</p>
+              <p className="text-lg font-bold text-foreground mt-2">{currentStats.uniqueStudents}</p>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Experience
+                Joined
               </p>
-              <p className="text-lg font-bold text-foreground mt-2">5+ years</p>
+              <p className="text-lg font-bold text-foreground mt-2">Recently</p>
             </div>
           </div>
         </CardContent>

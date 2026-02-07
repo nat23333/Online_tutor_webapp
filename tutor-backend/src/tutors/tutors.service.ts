@@ -69,6 +69,29 @@ export class TutorsService {
         });
     }
 
+    async getStats(userId: string) {
+        const bookings = await this.prisma.booking.findMany({
+            where: { tutorId: userId },
+            select: { status: true, amount: true, studentId: true }
+        });
+
+        const relevantBookings = bookings.filter(b => b.status === 'COMPLETED' || b.status === 'CONFIRMED');
+
+        const completedSessions = relevantBookings.length;
+        const totalEarnings = relevantBookings.reduce((sum, b) => sum + (b.amount || 0), 0);
+
+        // Count unique students
+        const uniqueStudents = new Set(relevantBookings.map(b => b.studentId)).size;
+
+        return {
+            completedSessions,
+            totalEarnings,
+            uniqueStudents,
+            averageRating: 4.8, // Placeholder until ratings are implemented
+            responseRate: 100, // Placeholder
+        };
+    }
+
     private mapToDto(user: any) {
         const profile = user.tutorProfile || {};
         return {

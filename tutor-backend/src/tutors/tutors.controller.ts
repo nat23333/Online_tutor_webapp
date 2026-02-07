@@ -21,4 +21,10 @@ export class TutorsController {
     upsertProfile(@Req() req, @Body() body: any) {
         return this.tutorsService.upsertProfile(req.user.sub, body);
     }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('stats')
+    getStats(@Req() req) {
+        return this.tutorsService.getStats(req.user.sub);
+    }
 }
