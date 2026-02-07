@@ -101,7 +101,7 @@ export function JitsiMeetingRoom({
 
       try {
         jitsiApiRef.current = new window.JitsiMeetExternalAPI(
-          'meet.jitsi.org',
+          'meet.jit.si',
           options
         );
 
@@ -155,7 +155,7 @@ export function JitsiMeetingRoom({
   return (
     <div className="space-y-4">
       <Script
-        src="https://meet.jitsi.org/external_api.js"
+        src="https://meet.jit.si/external_api.js"
         onLoad={initJitsi}
         onError={(e) => console.error("Script failed to load", e)}
       />
