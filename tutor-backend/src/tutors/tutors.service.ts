@@ -13,8 +13,9 @@ export class TutorsService {
         if (query) {
             whereClause.OR = [
                 { fullName: { contains: query, mode: 'insensitive' } },
-                { tutorProfile: { subjects: { hasSome: [query] } } }, // Simplistic subject matching
+                { tutorProfile: { subjects: { hasSome: [query] } } },
                 { tutorProfile: { bio: { contains: query, mode: 'insensitive' } } },
+                { tutorProfile: { headline: { contains: query, mode: 'insensitive' } } },
             ];
         }
 

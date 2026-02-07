@@ -24,6 +24,17 @@ export class AuthService {
       },
     });
 
+    if (role === 'TUTOR') {
+      await this.prisma.tutorProfile.create({
+        data: {
+          userId: user.id,
+          headline: 'New Tutor',
+          bio: 'Bio coming soon...',
+          hourlyRate: 0,
+        }
+      });
+    }
+
     return this.generateToken(user);
   }
 
