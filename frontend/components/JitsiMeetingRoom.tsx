@@ -57,6 +57,7 @@ export function JitsiMeetingRoom({
           startWithAudioMuted: false,
           startWithVideoMuted: false,
           disableSimulcast: false,
+          prejoinPageEnabled: false, // Skip the pre-join screen
         },
         interfaceConfigOverwrite: {
           DEFAULT_BACKGROUND: '#040404',
@@ -71,7 +72,7 @@ export function JitsiMeetingRoom({
             'chat',
             'fodeviceselection',
             'hangup',
-            'profile',
+            // 'profile', // Removed to hide login
             'settings',
             'raisehand',
             'videoquality',
@@ -86,8 +87,8 @@ export function JitsiMeetingRoom({
           SETTINGS_SECTIONS: [
             'devices',
             'language',
-            'moderator',
-            'profile',
+            // 'moderator', // Removed to hide login
+            // 'profile', // Removed to hide login
             'calendar',
             'sounds',
             'more',
