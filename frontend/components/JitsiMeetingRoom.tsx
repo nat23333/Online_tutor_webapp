@@ -59,6 +59,7 @@ export function JitsiMeetingRoom({
               'closedcaptions',
               'desktop',
               'fullscreen',
+              'chat',
               'fodeviceselection',
               'hangup',
               'profile',
