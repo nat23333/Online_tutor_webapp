@@ -69,7 +69,13 @@ export class BookingsService {
   }
 
   async getBooking(bookingId: string) {
-    const b = await this.prisma.booking.findUnique({ where: { id: bookingId } });
+    const b = await this.prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: {
+        tutor: { select: { fullName: true } },
+        student: { select: { fullName: true } }
+      }
+    });
     if (!b) throw new NotFoundException('Booking not found');
     return b;
   }
