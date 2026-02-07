@@ -26,7 +26,12 @@ export class TutorsService {
         });
 
         console.log(`[TutorsService] FindAll: Found ${tutors.length} users with role TUTOR. Query: "${query || ''}"`);
-        tutors.forEach(t => console.log(` - Tutor: ${t.fullName} (ID: ${t.id}), Headline: ${t.tutorProfile?.headline}, Photo: ${!!t.tutorProfile?.photoUrl}`));
+        tutors.forEach(t => {
+            const hasProfile = !!t.tutorProfile;
+            const hasHeadline = !!t.tutorProfile?.headline;
+            const hasSubjects = (t.tutorProfile?.subjects?.length || 0) > 0;
+            console.log(` - Tutor: ${t.fullName} (ID: ${t.id}), Role: ${t.role}, HasProfile: ${hasProfile}, HasHeadline: ${hasHeadline}, HasSubjects: ${hasSubjects}`);
+        });
 
         // For now, return all tutors regardless of verification for easier testing
         // In production, we would filter by isVerified: true
@@ -50,11 +55,12 @@ export class TutorsService {
 
     async upsertProfile(userId: string, data: any) {
         // First ensure user is a TUTOR and update their fullName if provided
+        const fullName = data.fullName || (data.firstName && data.lastName ? `${data.firstName} ${data.lastName}` : undefined);
         await this.prisma.user.update({
             where: { id: userId },
             data: {
                 role: 'TUTOR',
-                fullName: data.firstName && data.lastName ? `${data.firstName} ${data.lastName}` : undefined
+                fullName: fullName
             }
         });
 
@@ -65,19 +71,19 @@ export class TutorsService {
             update: {
                 bio: data.bio,
                 headline: data.headline,
-                photoUrl: data.photoUrl,
+                profilePhotoUrl: data.photoUrl || data.profilePhotoUrl,
                 location: data.location,
                 hourlyRate: data.hourlyRate,
-                subjects: data.skills || [],
+                subjects: data.skills || data.subjects || [],
             },
             create: {
                 userId,
                 bio: data.bio,
                 headline: data.headline,
-                photoUrl: data.photoUrl,
+                profilePhotoUrl: data.photoUrl || data.profilePhotoUrl,
                 location: data.location,
                 hourlyRate: data.hourlyRate,
-                subjects: data.skills || [],
+                subjects: data.skills || data.subjects || [],
                 isVerified: false, // Default to false, admin must verify
             },
         });
@@ -109,19 +115,18 @@ export class TutorsService {
     private mapToDto(user: any) {
         const profile = user.tutorProfile || {};
         return {
-            id: String(user.id), // Ensure string
+            id: String(user.id),
             name: user.fullName,
-            photo: profile.photoUrl || 'https://github.com/shadcn.png',
+            photo: profile.profilePhotoUrl || 'https://github.com/shadcn.png',
             specialization: profile.headline || profile.subjects?.[0] || 'General Tutor',
             hourlyRate: profile.hourlyRate || 0,
-            rating: 4.8, // Placeholder
-            reviewCount: 12, // Placeholder
+            rating: 4.8,
+            reviewCount: 12,
             yearsExperience: 5, // Placeholder
             location: profile.location || 'Addis Ababa',
             bio: profile.bio || 'No bio available',
             qualifications: profile.subjects || [],
             isVerified: profile.isVerified || false,
-            responseTime: 30, // Placeholder
         };
     }
 }

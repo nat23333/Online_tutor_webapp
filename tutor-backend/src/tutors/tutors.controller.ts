@@ -1,4 +1,5 @@
 import { Controller, Get, Param, Query, Post, Body, Req, UseGuards } from '@nestjs/common';
+import { Public } from '../common/decorators/public.decorator';
 import { TutorsService } from './tutors.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -6,6 +7,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class TutorsController {
     constructor(private readonly tutorsService: TutorsService) { }
 
+    @Public()
     @Get()
     findAll(@Query('query') query: string) {
         return this.tutorsService.findAll(query);

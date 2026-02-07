@@ -64,7 +64,7 @@ model TutorProfile {
   userId     String   @unique
   bio        String?
   headline   String?
-  photoUrl   String?
+  profilePhotoUrl String?
   location   String?
   subjects   String[] @default([])
   hourlyRate Int?

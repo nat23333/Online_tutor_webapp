@@ -12,13 +12,15 @@ export class AuthService {
 
   async register(data: any) {
     const passwordHash = await hashPassword(data.password);
+    const fullName = data.fullName || (data.firstName && data.lastName ? `${data.firstName} ${data.lastName}` : 'User');
+    const role = (data.role || 'STUDENT').toUpperCase();
 
     const user = await this.prisma.user.create({
       data: {
-        fullName: data.fullName,
+        fullName,
         email: data.email,
         passwordHash,
-        role: data.role ?? 'STUDENT',
+        role: role as any,
       },
     });
 
